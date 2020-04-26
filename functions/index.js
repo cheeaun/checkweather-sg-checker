@@ -164,7 +164,7 @@ const check = async () => {
 
   if (
     (sgCoverage >= 5 || coverage >= 50) &&
-    (Math.abs(prevSgCoverage - sgCoverage) > 10 || prevSgCoverage <= 5)
+    (Math.abs(prevSgCoverage - sgCoverage) > 15 || prevSgCoverage <= 5)
   ) {
     const fixedCoverage = coverage.toFixed(2).replace(/\.?0+$/, '');
     const fixedSgCoverage = sgCoverage.toFixed(2).replace(/\.?0+$/, '');
