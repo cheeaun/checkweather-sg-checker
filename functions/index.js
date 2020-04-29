@@ -166,8 +166,8 @@ const check = async () => {
     (sgCoverage >= 5 || coverage >= 50) &&
     (Math.abs(prevSgCoverage - sgCoverage) > 15 || prevSgCoverage <= 5)
   ) {
-    const fixedCoverage = coverage.toFixed(2).replace(/\.?0+$/, '');
-    const fixedSgCoverage = sgCoverage.toFixed(2).replace(/\.?0+$/, '');
+    const fixedCoverage = coverage.toFixed(1).replace(/\.?0+$/, '');
+    const fixedSgCoverage = sgCoverage.toFixed(1).replace(/\.?0+$/, '');
     console.log('SEND NOTIFICATION', id, fixedCoverage, fixedSgCoverage);
     sendNotification({
       title: `${'🌧'.repeat(
