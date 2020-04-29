@@ -217,6 +217,7 @@ exports.check = functions.region('asia-east2').https.onRequest((req, res) => {
 exports.scheduledCheck = functions
   .runWith({
     timeoutSeconds: 281, // 4min 41s
+    maxInstances: 1,
   })
   .region('asia-east2')
   .pubsub.schedule('1,6,11,16,21,26,31,36,41,46,51,56 * * * *')
