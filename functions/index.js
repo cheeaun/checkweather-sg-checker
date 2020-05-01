@@ -22,10 +22,10 @@ const sendNotification = ({ title, body }) => {
         aps: {
           'mutable-content': 1,
         },
-        image_url: 'https://rainshot.now.sh/',
+        image_url: 'https://rainshot.now.sh/api/radar',
       },
       fcm_options: {
-        image: 'https://rainshot.now.sh/',
+        image: 'https://rainshot.now.sh/api/radar',
       },
     },
   });
