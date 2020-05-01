@@ -8,7 +8,6 @@ const pRetry = require('p-retry');
 console.log('Start instance!', new Date().toISOString());
 admin.initializeApp(functions.config().firebase);
 let db = admin.firestore();
-let FieldValue = admin.firestore.FieldValue;
 
 const TTL = 120; // 2 mins
 const RADAR_IMAGE_URL = 'https://rainshot.now.sh/api/radar';
@@ -82,7 +81,6 @@ sgCoverageRef.get().then((doc) => {
     const { value, timestamp } = doc.data();
     prevSgCoverage = value;
     prevSGCoverageTimestamp = timestamp;
-    console.log('prevSGCoverageTimestamp', prevSGCoverageTimestamp);
   }
 });
 
@@ -186,9 +184,13 @@ const check = async () => {
       });
   }
 
+  const sgCoverageTimestamp = Date.now();
   if (
     (sgCoverage >= 5 || coverage >= 50) &&
-    (Math.abs(prevSgCoverage - sgCoverage) > 15 || prevSgCoverage <= 5)
+    sgCoverageTimestamp - prevSGCoverageTimestamp >= 30 * 60 * 1000 &&
+    (Math.abs(prevSgCoverage - sgCoverage) > 15 ||
+      prevSgCoverage <= 5 ||
+      sgCoverage >= 99)
   ) {
     const fixedCoverage = coverage.toFixed(1).replace(/\.?0+$/, '');
     const fixedSgCoverage = sgCoverage.toFixed(1).replace(/\.?0+$/, '');
@@ -209,16 +211,30 @@ const check = async () => {
       body,
     });
 
-    console.log('DIFFCOV 1', prevSgCoverage, sgCoverage);
+    console.log(
+      'DIFFCOV 1',
+      prevSgCoverage,
+      sgCoverage,
+      prevSGCoverageTimestamp,
+      sgCoverageTimestamp,
+    );
     prevSgCoverage = sgCoverage;
+    prevSGCoverageTimestamp = sgCoverageTimestamp;
     sgCoverageRef.set({
       value: sgCoverage,
-      timestamp: FieldValue.serverTimestamp(),
+      timestamp: sgCoverageTimestamp,
     });
   } else if (sgCoverage < 5 && prevSgCoverage >= 5) {
-    console.log('DIFFCOV 2', prevSgCoverage, sgCoverage);
+    console.log(
+      'DIFFCOV 2',
+      prevSgCoverage,
+      sgCoverage,
+      prevSGCoverageTimestamp,
+      sgCoverageTimestamp,
+    );
     prevSgCoverage = 0;
-    sgCoverageRef.set({ value: 0, timestamp: FieldValue.serverTimestamp() });
+    prevSGCoverageTimestamp = 0;
+    sgCoverageRef.set({ value: 0, timestamp: 0 });
   }
 
   // Delete old docs every hour
