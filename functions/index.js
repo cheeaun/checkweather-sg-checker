@@ -31,6 +31,17 @@ const sendNotification = ({ title, body }) => {
   });
 };
 
+const triggerWebhook = (data) => {
+  const { webhook } = functions.config();
+  if (!webhook || !webhook.url) return;
+  phin({
+    url: webhook.url,
+    method: 'POST',
+    data,
+    core: { agent },
+  });
+};
+
 const offset = 8; // Singapore timezone +0800
 function datetimeNowStr(customMinutes) {
   // https://stackoverflow.com/a/11124448/20838
@@ -168,13 +179,23 @@ const check = async () => {
   ) {
     const fixedCoverage = coverage.toFixed(1).replace(/\.?0+$/, '');
     const fixedSgCoverage = sgCoverage.toFixed(1).replace(/\.?0+$/, '');
+
+    const title = `${'🌧'.repeat(
+      Math.ceil(coverage / 20),
+    )} Rain coverage: ${fixedCoverage}%`;
+    const body = `Rain coverage over Singapore: ${fixedSgCoverage}%`;
+
     console.log('SEND NOTIFICATION', id, fixedCoverage, fixedSgCoverage);
     sendNotification({
-      title: `${'🌧'.repeat(
-        Math.ceil(coverage / 20),
-      )} Rain coverage: ${fixedCoverage}%`,
-      body: `Rain coverage over Singapore: ${fixedSgCoverage}%`,
+      title,
+      body,
     });
+
+    triggerWebhook({
+      title,
+      body,
+    });
+
     console.log('DIFFCOV 1', prevSgCoverage, sgCoverage);
     prevSgCoverage = sgCoverage;
     sgCoverageRef.set({
