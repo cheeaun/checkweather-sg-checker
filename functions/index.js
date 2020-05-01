@@ -10,6 +10,7 @@ admin.initializeApp(functions.config().firebase);
 let db = admin.firestore();
 let FieldValue = admin.firestore.FieldValue;
 
+const RADAR_IMAGE_URL = 'https://rainshot.now.sh/api/radar';
 const sendNotification = ({ title, body }) => {
   admin.messaging().send({
     notification: {
@@ -22,10 +23,10 @@ const sendNotification = ({ title, body }) => {
         aps: {
           'mutable-content': 1,
         },
-        image_url: 'https://rainshot.now.sh/api/radar',
+        image_url: RADAR_IMAGE_URL,
       },
       fcm_options: {
-        image: 'https://rainshot.now.sh/api/radar',
+        image: RADAR_IMAGE_URL,
       },
     },
   });
