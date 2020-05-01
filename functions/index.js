@@ -102,7 +102,7 @@ const check = async () => {
     const missingID = datetimeStr(-5);
     console.log('📥📥', missingID);
     phin({
-      url: `https://rain-geojson-sg.now.sh/v2/rainarea?dt=${missingID}`,
+      url: `https://api.checkweather.sg/v2/rainarea?dt=${missingID}`,
       parse: 'json',
       core: { agent },
     })
@@ -126,7 +126,7 @@ const check = async () => {
 
   const request = async () => {
     const { body } = await phin({
-      url: `https://rain-geojson-sg.now.sh/v2/rainarea?dt=${dt}`,
+      url: `https://api.checkweather.sg/v2/rainarea?dt=${dt}`,
       parse: 'json',
       core: { agent },
     });
