@@ -10,6 +10,7 @@ admin.initializeApp(functions.config().firebase);
 let db = admin.firestore();
 let FieldValue = admin.firestore.FieldValue;
 
+const TTL = 120; // 2 mins
 const RADAR_IMAGE_URL = 'https://rainshot.now.sh/api/radar';
 const sendNotification = ({ title, body }) => {
   admin.messaging().send({
@@ -27,6 +28,17 @@ const sendNotification = ({ title, body }) => {
       },
       fcm_options: {
         image: RADAR_IMAGE_URL,
+      },
+      headers: {
+        'apns-expiration': '' + Math.round(Date.now() / 1000 + TTL),
+      },
+    },
+    android: {
+      ttl: TTL + 's',
+    },
+    webpush: {
+      headers: {
+        TTL,
       },
     },
   });
