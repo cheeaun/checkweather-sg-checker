@@ -33,7 +33,7 @@ const sendNotification = ({ title, body }) => {
       },
     },
     android: {
-      ttl: TTL + 's',
+      ttl: TTL * 60 * 1000,
     },
     webpush: {
       headers: {
