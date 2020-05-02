@@ -37,7 +37,7 @@ const sendNotification = ({ title, body }) => {
     },
     webpush: {
       headers: {
-        TTL,
+        TTL: '' + TTL,
       },
     },
   });
