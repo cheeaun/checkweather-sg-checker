@@ -11,7 +11,8 @@ let db = admin.firestore();
 
 const TTL = 120; // 2 mins
 const RADAR_IMAGE_URL = 'https://rainshot.now.sh/api/radar';
-const sendNotification = ({ title, body }) => {
+const sendNotification = ({ title, body, id }) => {
+  const imageURL = `${RADAR_IMAGE_URL}?dt=${id}`;
   admin.messaging().send({
     notification: {
       title,
@@ -23,10 +24,10 @@ const sendNotification = ({ title, body }) => {
         aps: {
           'mutable-content': 1,
         },
-        image_url: RADAR_IMAGE_URL,
+        image_url: imageURL,
       },
       fcm_options: {
-        image: RADAR_IMAGE_URL,
+        image: imageURL,
       },
       headers: {
         'apns-expiration': '' + Math.round(Date.now() / 1000 + TTL),
@@ -46,10 +47,14 @@ const sendNotification = ({ title, body }) => {
 const triggerWebhook = (data) => {
   const { webhook } = functions.config();
   if (!webhook || !webhook.url) return;
+  const imageURL = `${RADAR_IMAGE_URL}?dt=${data.id}`;
   phin({
     url: webhook.url,
     method: 'POST',
-    data,
+    data: {
+      ...data,
+      imageURL,
+    },
     core: { agent },
   });
 };
@@ -204,11 +209,13 @@ const check = async () => {
     sendNotification({
       title,
       body,
+      id,
     });
 
     triggerWebhook({
       title,
       body,
+      id,
     });
 
     console.log(
