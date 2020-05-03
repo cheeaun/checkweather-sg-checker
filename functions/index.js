@@ -17,6 +17,7 @@ const sendNotification = ({ title, body, id }) => {
     notification: {
       title,
       body,
+      imageUrl: imageURL,
     },
     topic: 'all',
     apns: {
@@ -24,10 +25,6 @@ const sendNotification = ({ title, body, id }) => {
         aps: {
           'mutable-content': 1,
         },
-        image_url: imageURL,
-      },
-      fcm_options: {
-        image: imageURL,
       },
       headers: {
         'apns-expiration': '' + Math.round(Date.now() / 1000 + TTL),
