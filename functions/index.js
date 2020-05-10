@@ -160,9 +160,9 @@ const check = async () => {
     return body;
   };
   const data = await pRetry(request, {
-    retries: 14,
+    retries: 18,
     factor: 1,
-    minTimeout: 20 * 1000,
+    minTimeout: 15 * 1000,
     onFailedAttempt: () => {
       console.log('⚠️ Failed attempt', dt);
     },
@@ -270,7 +270,7 @@ exports.check = functions.region('asia-east2').https.onRequest((req, res) => {
 
 exports.scheduledCheck = functions
   .runWith({
-    timeoutSeconds: 281, // 4min 41s
+    timeoutSeconds: 271, // 4min 31s
     maxInstances: 1,
   })
   .region('asia-east2')
