@@ -10,7 +10,7 @@ admin.initializeApp(functions.config().firebase);
 let db = admin.firestore();
 
 const TTL = 120; // 2 mins
-const RADAR_IMAGE_URL = 'https://rainshot.now.sh/api/radar';
+const RADAR_IMAGE_URL = 'https://rainshot.checkweather.sg/';
 const sendNotification = ({ title, body, id }) => {
   const imageURL = `${RADAR_IMAGE_URL}?dt=${id}`;
   admin.messaging().send({
