@@ -13,32 +13,40 @@ const TTL = 120; // 2 mins
 const RADAR_IMAGE_URL = 'https://rainshot.checkweather.sg/';
 const sendNotification = ({ title, body, id }) => {
   const imageURL = `${RADAR_IMAGE_URL}?dt=${id}`;
-  admin.messaging().send({
-    notification: {
-      title,
-      body,
-      imageUrl: imageURL,
-    },
-    topic: 'all',
-    apns: {
-      payload: {
-        aps: {
-          'mutable-content': 1,
+  admin
+    .messaging()
+    .send({
+      notification: {
+        title,
+        body,
+        imageUrl: imageURL,
+      },
+      topic: 'all',
+      apns: {
+        payload: {
+          aps: {
+            'mutable-content': 1,
+          },
+        },
+        headers: {
+          'apns-expiration': '' + Math.round(Date.now() / 1000 + TTL),
         },
       },
-      headers: {
-        'apns-expiration': '' + Math.round(Date.now() / 1000 + TTL),
+      android: {
+        ttl: TTL * 60 * 1000,
       },
-    },
-    android: {
-      ttl: TTL * 60 * 1000,
-    },
-    webpush: {
-      headers: {
-        TTL: '' + TTL,
+      webpush: {
+        headers: {
+          TTL: '' + TTL,
+        },
       },
-    },
-  });
+    })
+    .then((response) => {
+      console.log('SENT NOTIFICATION', response);
+    })
+    .catch((error) => {
+      console.warn('ERROR SENDING NOTIFICATION', error);
+    });
 };
 
 const triggerWebhook = (data) => {
