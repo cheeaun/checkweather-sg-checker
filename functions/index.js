@@ -272,7 +272,7 @@ const check = async () => {
 };
 
 exports.check = functions.region('asia-east2').https.onRequest((req, res) => {
-  check();
+  // check();
   res.status(200).send('DONE');
 });
 
