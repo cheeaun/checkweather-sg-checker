@@ -112,6 +112,10 @@ function minusDts(dt1, dt2) {
   }
 }
 
+const TIMEOUT_SEC = 270; // 4min 30s
+const MIN_TIMEOUT_SEC = 10;
+const RETRIES = Math.floor(TIMEOUT_SEC / MIN_TIMEOUT_SEC);
+
 const check = async () => {
   let dt = datetimeStr();
   console.log('✅', dt);
@@ -168,9 +172,9 @@ const check = async () => {
     return body;
   };
   const data = await pRetry(request, {
-    retries: 18,
+    retries: RETRIES,
     factor: 1,
-    minTimeout: 15 * 1000,
+    minTimeout: MIN_TIMEOUT_SEC * 1000,
     onFailedAttempt: () => {
       console.log('⚠️ Failed attempt', dt);
     },
@@ -278,7 +282,7 @@ exports.check = functions.region('asia-east2').https.onRequest((req, res) => {
 
 exports.scheduledCheck = functions
   .runWith({
-    timeoutSeconds: 271, // 4min 31s
+    timeoutSeconds: TIMEOUT_SEC + 1, // Additional 1s for safety
     maxInstances: 1,
   })
   .region('asia-east2')
