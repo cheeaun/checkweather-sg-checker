@@ -13,6 +13,7 @@ const TTL = 120; // 2 mins
 const RADAR_IMAGE_URL = 'https://rainshot.checkweather.sg/';
 const sendNotification = ({ title, body, id }) => {
   const imageURL = `${RADAR_IMAGE_URL}?dt=${id}`;
+  const collapseKey = 'latest-radar';
   admin
     .messaging()
     .send({
@@ -30,6 +31,7 @@ const sendNotification = ({ title, body, id }) => {
         },
         headers: {
           'apns-expiration': '' + Math.round(Date.now() / 1000 + TTL),
+          'apns-collapse-id': collapseKey,
         },
       },
       android: {
