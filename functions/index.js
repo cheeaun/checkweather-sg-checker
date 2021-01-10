@@ -206,7 +206,8 @@ const check = async () => {
     sgCoverageTimestamp - prevSGCoverageTimestamp >= 30 * 60 * 1000 &&
     (Math.abs(prevSgCoverage - sgCoverage) > 15 ||
       prevSgCoverage <= 5 ||
-      sgCoverage >= 99)
+      (sgCoverage === 100 && prevSgCoverage < 100) ||
+      (sgCoverage >= 99 && prevSgCoverage < 99))
   ) {
     const fixedCoverage = coverage.toFixed(1).replace(/\.?0+$/, '');
     const fixedSgCoverage = sgCoverage.toFixed(1).replace(/\.?0+$/, '');
