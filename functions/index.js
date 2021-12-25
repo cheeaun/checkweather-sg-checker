@@ -155,6 +155,10 @@ const check = async () => {
           })
           .then(() => {
             console.log('💾💾', missingID);
+          })
+          .catch((e) => {
+            console.log('💾⚠️', missingID);
+            console.error(e);
           });
       })
       .catch((e) => {
