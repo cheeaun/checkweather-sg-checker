@@ -9,13 +9,8 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@master
-      - name: Install Dependencies
-        run: cd functions && npm ci
-      - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only functions
+      - uses: actions/checkout@master
+      - run: cd functions && npm ci
+      - uses: Accelery/firebase-deploy-functions-action@v2
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
