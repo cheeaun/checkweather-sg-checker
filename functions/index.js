@@ -137,33 +137,37 @@ const check = async () => {
   // Sometimes the response might skip >5 or 10 minutes ahead
   // This is to fill up the blanks in between two timestamps
   if (minusDts(dt, lastID) > 5) {
-    const missingID = datetimeStr(-5);
-    console.log('📥📥', missingID);
-    phin({
-      url: `https://api.checkweather.sg/v2/rainarea?dt=${missingID}`,
-      parse: 'json',
-      core: { agent },
-    })
-      .then((res) => {
-        const data = res.body;
-        if (data.error) return;
-        db.collection('weather')
-          .doc('' + missingID)
-          .set({
-            dt: +missingID,
-            ...data,
-          })
-          .then(() => {
-            console.log('💾💾', missingID);
-          })
-          .catch((e) => {
-            console.log('💾⚠️', missingID);
-            console.error(e);
-          });
+    let i = 1;
+    const fillBackLimit = 5;
+    do {
+      const missingID = datetimeStr((i++) * -5);
+      console.log('📥📥', missingID);
+      phin({
+        url: `https://api.checkweather.sg/v2/rainarea?dt=${missingID}`,
+        parse: 'json',
+        core: { agent },
       })
-      .catch((e) => {
-        console.error(e);
-      });
+        .then((res) => {
+          const data = res.body;
+          if (data.error) return;
+          db.collection('weather')
+            .doc('' + missingID)
+            .set({
+              dt: +missingID,
+              ...data,
+            })
+            .then(() => {
+              console.log('💾💾', missingID);
+            })
+            .catch((e) => {
+              console.log('💾⚠️', missingID);
+              console.error(e);
+            });
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    } while (missingID !== lastID && i < fillBackLimit);
   }
 
   const request = async () => {
