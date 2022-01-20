@@ -139,9 +139,9 @@ const check = async () => {
   if (minusDts(dt, lastID) > 5) {
     let i = 1;
     const fillBackLimit = 5;
-    let missingID;
+    let currentMissingID;
     do {
-      missingID = datetimeStr(i++ * -5);
+      const missingID = (currentMissingID = datetimeStr(i++ * -5));
       console.log('📥📥', missingID);
       phin({
         url: `https://api.checkweather.sg/v2/rainarea?dt=${missingID}`,
@@ -168,7 +168,7 @@ const check = async () => {
         .catch((e) => {
           console.error(e);
         });
-    } while (missingID !== lastID && i < fillBackLimit);
+    } while (currentMissingID !== lastID && i < fillBackLimit);
   }
 
   const request = async () => {
