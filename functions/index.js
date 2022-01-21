@@ -151,17 +151,15 @@ const check = async () => {
         .then((res) => {
           const data = res.body;
           if (data.error) return;
+          const { id } = data;
           db.collection('weather')
-            .doc('' + missingID)
-            .set({
-              dt: +missingID,
-              ...data,
-            })
+            .doc(id)
+            .set(data)
             .then(() => {
-              console.log('💾💾', missingID);
+              console.log('💾💾', id);
             })
             .catch((e) => {
-              console.log('💾⚠️', missingID);
+              console.log('💾⚠️', id);
               console.error(e);
             });
         })
@@ -200,10 +198,7 @@ const check = async () => {
   if (id != lastID) {
     db.collection('weather')
       .doc(id)
-      .set({
-        dt: +id,
-        ...data,
-      })
+      .set(data)
       .then(() => {
         console.log('💾', id);
       });
