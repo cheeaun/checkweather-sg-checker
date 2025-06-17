@@ -144,7 +144,7 @@ const check = async () => {
       const missingID = (currentMissingID = datetimeStr(i++ * -5));
       console.log('📥📥', missingID);
       phin({
-        url: `https://api.checkweather.sg/v2/rainarea?dt=${missingID}`,
+        url: `https://api2.checkweather.sg/v1/rainarea?dt=${missingID}`,
         parse: 'json',
         core: { agent },
       })
@@ -171,7 +171,7 @@ const check = async () => {
 
   const request = async () => {
     const { body } = await phin({
-      url: `https://api.checkweather.sg/v2/rainarea?dt=${dt}`,
+      url: `https://api2.checkweather.sg/v1/rainarea?dt=${dt}`,
       parse: 'json',
       core: { agent },
     });
