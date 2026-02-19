@@ -16,6 +16,26 @@ jobs:
           cache: npm
           cache-dependency-path: functions/package-lock.json
       - run: cd functions && npm ci
-      - run: npx firebase-tools@latest deploy --only functions --project check-weather-sg --token "$FIREBASE_TOKEN" --non-interactive
+
+      - name: Authenticate to Google Cloud
+        if: ${{ secrets.GCP_SA_KEY != '' }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy Functions (service account)
+        if: ${{ secrets.GCP_SA_KEY != '' }}
+        run: npx firebase-tools@latest deploy --only functions --project check-weather-sg --non-interactive
+
+      - name: Deploy Functions (legacy token fallback)
+        if: ${{ secrets.GCP_SA_KEY == '' && secrets.FIREBASE_TOKEN != '' }}
+        run: npx firebase-tools@latest deploy --only functions --project check-weather-sg --token "$FIREBASE_TOKEN" --non-interactive
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Missing deploy credentials
+        if: ${{ secrets.GCP_SA_KEY == '' && secrets.FIREBASE_TOKEN == '' }}
+        run: |
+          echo "Missing deploy credentials."
+          echo "Set GitHub secret GCP_SA_KEY (recommended) or FIREBASE_TOKEN."
+          exit 1
