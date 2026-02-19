@@ -1,13 +1,15 @@
 const https = require('https');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
+const { defineJsonSecret } = require('firebase-functions/params');
 const agent = new https.Agent({ keepAlive: true });
 const phin = require('phin');
 const pRetry = require('p-retry');
 
 console.log('Start instance!', new Date().toISOString());
-admin.initializeApp(functions.config().firebase);
+admin.initializeApp();
 let db = admin.firestore();
+const RUNTIME_CONFIG = defineJsonSecret('RUNTIME_CONFIG');
 
 const TTL = 120; // 2 mins
 const RADAR_IMAGE_URL = 'https://rainshot.checkweather.sg/';
@@ -51,12 +53,17 @@ const sendNotification = ({ title, body, id }) => {
     });
 };
 
+const getWebhookURL = () => {
+  const runtimeConfig = RUNTIME_CONFIG.value();
+  return runtimeConfig?.webhook?.url || runtimeConfig?.url || null;
+};
+
 const triggerWebhook = (data) => {
-  const { webhook } = functions.config();
-  if (!webhook || !webhook.url) return;
+  const webhookURL = getWebhookURL();
+  if (!webhookURL) return;
   const imageURL = `${RADAR_IMAGE_URL}?dt=${data.id}`;
   phin({
-    url: webhook.url,
+    url: webhookURL,
     method: 'POST',
     data: {
       ...data,
@@ -291,6 +298,7 @@ exports.scheduledCheck = functions
   .runWith({
     timeoutSeconds: TIMEOUT_SEC + 1, // Additional 1s for safety
     maxInstances: 1,
+    secrets: [RUNTIME_CONFIG],
   })
   .region('asia-east2')
   .pubsub.schedule('1,6,11,16,21,26,31,36,41,46,51,56 * * * *')
