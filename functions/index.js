@@ -1,6 +1,6 @@
 const https = require('https');
 const admin = require('firebase-admin');
-const functions = require('firebase-functions');
+const functions = require('firebase-functions/v1');
 const { defineJsonSecret } = require('firebase-functions/params');
 const agent = new https.Agent({ keepAlive: true });
 const phin = require('phin');
@@ -95,13 +95,31 @@ let lastDt;
 let prevSgCoverage = 0;
 let prevSGCoverageTimestamp = null;
 let sgCoverageRef = db.collection('state').doc('sg-coverage');
-sgCoverageRef.get().then((doc) => {
-  if (doc.exists) {
-    const { value, timestamp } = doc.data();
-    prevSgCoverage = value;
-    prevSGCoverageTimestamp = timestamp;
+let loadedCoverageState = false;
+let loadCoverageStatePromise;
+
+const loadCoverageState = async () => {
+  if (loadedCoverageState) return;
+  if (!loadCoverageStatePromise) {
+    loadCoverageStatePromise = sgCoverageRef
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          const { value, timestamp } = doc.data();
+          prevSgCoverage = value;
+          prevSGCoverageTimestamp = timestamp;
+        }
+        loadedCoverageState = true;
+      })
+      .catch((error) => {
+        console.warn('Error loading coverage state', error);
+      })
+      .finally(() => {
+        loadCoverageStatePromise = null;
+      });
   }
-});
+  await loadCoverageStatePromise;
+};
 
 function minusDts(dt1, dt2) {
   try {
@@ -126,6 +144,8 @@ const MIN_TIMEOUT_SEC = 10;
 const RETRIES = Math.floor(TIMEOUT_SEC / MIN_TIMEOUT_SEC);
 
 const check = async () => {
+  await loadCoverageState();
+
   let dt = datetimeStr();
   console.log('✅', dt);
   if (lastDt == dt) return;
