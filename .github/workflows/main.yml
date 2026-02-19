@@ -16,6 +16,6 @@ jobs:
           cache: npm
           cache-dependency-path: functions/package-lock.json
       - run: cd functions && npm ci
-      - uses: Accelery/firebase-deploy-functions-action@v2
+      - run: npx firebase-tools@latest deploy --only functions --project check-weather-sg --token "$FIREBASE_TOKEN" --non-interactive
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
