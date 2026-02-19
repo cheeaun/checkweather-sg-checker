@@ -8,6 +8,9 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    env:
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,23 +21,21 @@ jobs:
       - run: cd functions && npm ci
 
       - name: Authenticate to Google Cloud
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.GCP_SA_KEY != '' }}
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ env.GCP_SA_KEY }}
 
       - name: Deploy Functions (service account)
-        if: ${{ secrets.GCP_SA_KEY != '' }}
+        if: ${{ env.GCP_SA_KEY != '' }}
         run: npx firebase-tools@latest deploy --only functions --project check-weather-sg --non-interactive
 
       - name: Deploy Functions (legacy token fallback)
-        if: ${{ secrets.GCP_SA_KEY == '' && secrets.FIREBASE_TOKEN != '' }}
+        if: ${{ env.GCP_SA_KEY == '' && env.FIREBASE_TOKEN != '' }}
         run: npx firebase-tools@latest deploy --only functions --project check-weather-sg --token "$FIREBASE_TOKEN" --non-interactive
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Missing deploy credentials
-        if: ${{ secrets.GCP_SA_KEY == '' && secrets.FIREBASE_TOKEN == '' }}
+        if: ${{ env.GCP_SA_KEY == '' && env.FIREBASE_TOKEN == '' }}
         run: |
           echo "Missing deploy credentials."
           echo "Set GitHub secret GCP_SA_KEY (recommended) or FIREBASE_TOKEN."
