@@ -4,7 +4,8 @@ const functions = require('firebase-functions/v1');
 const { defineJsonSecret } = require('firebase-functions/params');
 const agent = new https.Agent({ keepAlive: true });
 const phin = require('phin');
-const pRetry = require('p-retry');
+const pRetryModule = require('p-retry');
+const pRetry = pRetryModule.default || pRetryModule;
 
 console.log('Start instance!', new Date().toISOString());
 admin.initializeApp();
