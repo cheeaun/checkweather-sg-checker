@@ -9,7 +9,6 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     env:
-      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
     steps:
       - uses: actions/checkout@v4
@@ -31,12 +30,13 @@ jobs:
         run: npx firebase-tools@latest deploy --only functions --project check-weather-sg --non-interactive
 
       - name: Deploy Functions (legacy token fallback)
-        if: ${{ env.GCP_SA_KEY == '' && env.FIREBASE_TOKEN != '' }}
-        run: npx firebase-tools@latest deploy --only functions --project check-weather-sg --token "$FIREBASE_TOKEN" --non-interactive
-
-      - name: Missing deploy credentials
-        if: ${{ env.GCP_SA_KEY == '' && env.FIREBASE_TOKEN == '' }}
+        if: ${{ env.GCP_SA_KEY == '' }}
         run: |
-          echo "Missing deploy credentials."
-          echo "Set GitHub secret GCP_SA_KEY (recommended) or FIREBASE_TOKEN."
-          exit 1
+          if [ -z "$FIREBASE_TOKEN" ]; then
+            echo "Missing deploy credentials."
+            echo "Set GitHub secret GCP_SA_KEY (recommended) or FIREBASE_TOKEN."
+            exit 1
+          fi
+          npx firebase-tools@latest deploy --only functions --project check-weather-sg --token "$FIREBASE_TOKEN" --non-interactive
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
